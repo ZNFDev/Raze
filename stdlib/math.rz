@@ -1,0 +1,82 @@
+// stdlib/math.rz — Raze Math Library
+// import "stdlib/math.rz";
+
+func sign(float x) -> float {
+    if (x > 0.0) { return 1.0; }
+    if (x < 0.0) { return -1.0; }
+    return 0.0;
+}
+
+func fmod(float a, float b) -> float {
+    return a - b * floor(a / b);
+}
+
+func map_range(float v, float inLo, float inHi, float outLo, float outHi) -> float {
+    return outLo + (v - inLo) / (inHi - inLo) * (outHi - outLo);
+}
+
+func smoothstep(float a, float b, float t) -> float {
+    val x = clamp((t - a) / (b - a), 0.0, 1.0);
+    return x * x * (3.0 - 2.0 * x);
+}
+
+func distance2D(float x1, float y1, float x2, float y2) -> float {
+    return sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+}
+
+func distance3D(float x1, float y1, float z1, float x2, float y2, float z2) -> float {
+    return sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1));
+}
+
+func gcd(int a, int b) -> int {
+    while (b != 0) {
+        val t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
+
+func lcm(int a, int b) -> int {
+    return (a / gcd(a, b)) * b;
+}
+
+func isPrime(int n) -> bool {
+    if (n < 2) { return false; }
+    if (n == 2) { return true; }
+    if (n % 2 == 0) { return false; }
+    auto i = 3;
+    while (i * i <= n) {
+        if (n % i == 0) { return false; }
+        i += 2;
+    }
+    return true;
+}
+
+func primes(int limit) -> int[] {
+    auto result = array();
+    for (auto n = 2; n <= limit; n++) {
+        if (isPrime(n)) { push(result, n); }
+    }
+    return result;
+}
+
+func factorial(int n) -> int {
+    if (n <= 1) { return 1; }
+    return n * factorial(n - 1);
+}
+
+func fibonacci(int n) -> int {
+    if (n <= 1) { return n; }
+    auto a = 0; auto b = 1;
+    for (auto i = 2; i <= n; i++) {
+        auto tmp = a + b; a = b; b = tmp;
+    }
+    return b;
+}
+
+func deg2rad(float deg) -> float { return deg * PI / 180.0; }
+func rad2deg(float rad) -> float { return rad * 180.0 / PI; }
+
+func toDegrees(float rad) -> float { return rad * 180.0 / PI; }
+func toRadians(float deg) -> float { return deg * PI / 180.0; }

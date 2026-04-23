@@ -1,0 +1,69 @@
+// stdlib/string.rz — Raze String Library
+// import "stdlib/string.rz";
+
+func strRepeat(string s, int n) -> string {
+    var r = "";
+    for (auto i = 0; i < n; i++) { r += s; }
+    return r;
+}
+
+func strCenter(string s, int width, string fill) -> string {
+    auto pad = width - len(s);
+    if (pad <= 0) { return s; }
+    auto left  = pad / 2;
+    auto right = pad - left;
+    return strRepeat(fill, left) + s + strRepeat(fill, right);
+}
+
+func strCount(string s, string sub) -> int {
+    return s.count(sub);
+}
+
+func strIsAlpha(string s) -> bool {
+    for (auto ch in s) {
+        auto code = ord(ch);
+        if (!((code >= 65 && code <= 90) || (code >= 97 && code <= 122))) {
+            return false;
+        }
+    }
+    return len(s) > 0;
+}
+
+func strIsDigit(string s) -> bool {
+    for (auto ch in s) {
+        auto code = ord(ch);
+        if (code < 48 || code > 57) { return false; }
+    }
+    return len(s) > 0;
+}
+
+func strIsAlnum(string s) -> bool {
+    return strIsAlpha(s) || strIsDigit(s);
+}
+
+func strTitle(string s) -> string {
+    var result = "";
+    var nextCap = true;
+    for (auto ch in s) {
+        auto code = ord(ch);
+        if (ch == " ") {
+            result += ch;
+            nextCap = true;
+        } else if (nextCap && code >= 97 && code <= 122) {
+            result += chr(code - 32);
+            nextCap = false;
+        } else {
+            result += ch;
+            nextCap = false;
+        }
+    }
+    return result;
+}
+
+func strLines(string s) -> string[] {
+    return s.split("\n");
+}
+
+func strJoin(string[] parts, string delim) -> string {
+    return parts.join(delim);
+}

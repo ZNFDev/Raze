@@ -1,0 +1,74 @@
+// stdlib/collections.rz — Stack, Queue, Set
+// import "stdlib/collections.rz";
+
+// ── Stack ─────────────────────────────────────────────────────
+class Stack {
+    var data;
+    func init() { this.data = array(); }
+    func push(var v) { this.data.push(v); }
+    func pop() -> var {
+        if (this.data.isEmpty()) { throw "Stack underflow"; }
+        return this.data.pop();
+    }
+    func peek() -> var {
+        if (this.data.isEmpty()) { throw "Stack is empty"; }
+        return this.data.last();
+    }
+    func isEmpty() -> bool { return this.data.isEmpty(); }
+    func size() -> int    { return this.data.len(); }
+    func clear()          { this.data.clear(); }
+    func describe() -> string { return "Stack" + str(this.data); }
+}
+
+// ── Queue ─────────────────────────────────────────────────────
+class Queue {
+    var data;
+    func init() { this.data = array(); }
+    func enqueue(var v) { this.data.push(v); }
+    func dequeue() -> var {
+        if (this.data.isEmpty()) { throw "Queue underflow"; }
+        return this.data.shift();
+    }
+    func front() -> var {
+        if (this.data.isEmpty()) { throw "Queue is empty"; }
+        return this.data.first();
+    }
+    func isEmpty() -> bool { return this.data.isEmpty(); }
+    func size() -> int    { return this.data.len(); }
+    func clear()          { this.data.clear(); }
+    func describe() -> string { return "Queue" + str(this.data); }
+}
+
+// ── Set ───────────────────────────────────────────────────────
+class Set {
+    var data;
+    func init() { this.data = {}; }
+    func add(var v) { this.data[str(v)] = v; }
+    func has(var v) -> bool { return this.data.has(str(v)); }
+    func remove(var v) { this.data.remove(str(v)); }
+    func size() -> int { return this.data.len(); }
+    func isEmpty() -> bool { return this.data.isEmpty(); }
+    func clear() { this.data.clear(); }
+    func values() -> var { return this.data.values(); }
+    func describe() -> string { return "Set" + str(this.data.values()); }
+    func union(Set other) -> Set {
+        auto s = new Set();
+        for (auto v in this.values())  { s.add(v); }
+        for (auto v in other.values()) { s.add(v); }
+        return s;
+    }
+    func intersect(Set other) -> Set {
+        auto s = new Set();
+        for (auto v in this.values()) {
+            if (other.has(v)) { s.add(v); }
+        }
+        return s;
+    }
+    func difference(Set other) -> Set {
+        auto s = new Set();
+        for (auto v in this.values()) {
+            if (!other.has(v)) { s.add(v); }
+        }
+        return s;
+    }
+}

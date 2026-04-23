@@ -1,0 +1,327 @@
+// ============================================================
+//  test.rz  —  Raze Language Comprehensive Test
+// ============================================================
+
+// ── Native function declarations ─────────────────────────────
+// Syntax: native name = (paramTypes) -> retType @ ADDRESS
+// Here we use the host-registered names directly; in a real
+// injection scenario you'd use the actual game memory address:
+//   native call_explode = (float, float, float, float) -> void @ 0x7F1234ABCD;
+
+// ── Struct declarations ──────────────────────────────────────
+struct Vec3 {
+    float x;
+    float y;
+    float z;
+}
+
+struct Player {
+    int   id;
+    string name;
+    float  health;
+    Vec3   position;
+}
+
+struct Rect {
+    int x;
+    int y;
+    int width;
+    int height;
+}
+
+// ── Helper functions ─────────────────────────────────────────
+func vec3_length(Vec3 v) -> float {
+    return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+func vec3_dot(Vec3 a, Vec3 b) -> float {
+    return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+func distance(Vec3 a, Vec3 b) -> float {
+    float dx = a.x - b.x;
+    float dy = a.y - b.y;
+    float dz = a.z - b.z;
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+func max_val(int a, int b) -> int {
+    if (a > b) { return a; }
+    return b;
+}
+
+func factorial(int n) -> int {
+    if (n <= 1) { return 1; }
+    return n * factorial(n - 1);
+}
+
+func fibonacci(int n) -> int {
+    if (n <= 1) { return n; }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+func is_prime(int n) -> bool {
+    if (n < 2) { return false; }
+    int i = 2;
+    while (i * i <= n) {
+        if (n % i == 0) { return false; }
+        i++;
+    }
+    return true;
+}
+
+func clamp_f(float v, float lo, float hi) -> float {
+    if (v < lo) { return lo; }
+    if (v > hi) { return hi; }
+    return v;
+}
+
+// ── Main ─────────────────────────────────────────────────────
+func main() {
+
+    println("=== Raze Language Test ===\n");
+
+    // ── 1. Basic variables & arithmetic ──────────────────────
+    println("--- 1. Variables & Arithmetic ---");
+    int   a = 42;
+    int   b = 13;
+    float pi = 3.14159;
+    bool  flag = true;
+    string greeting = "Hello, Raze!";
+
+    println(greeting);
+    println("a + b = " + str(a + b));
+    println("a - b = " + str(a - b));
+    println("a * b = " + str(a * b));
+    println("a / b = " + str(a / b));
+    println("a % b = " + str(a % b));
+    println("pi    = " + str(pi));
+
+    // ── 2. Compound assignment & increment ───────────────────
+    println("\n--- 2. Compound Assignment ---");
+    int x = 10;
+    x += 5;  println("x += 5  -> " + str(x));
+    x -= 3;  println("x -= 3  -> " + str(x));
+    x *= 2;  println("x *= 2  -> " + str(x));
+    x /= 4;  println("x /= 4  -> " + str(x));
+    x++;     println("x++     -> " + str(x));
+    x--;     println("x--     -> " + str(x));
+
+    // ── 3. Comparison & logical ───────────────────────────────
+    println("\n--- 3. Comparison & Logical ---");
+    println("10 > 5  : " + str(10 > 5));
+    println("10 < 5  : " + str(10 < 5));
+    println("10 == 10: " + str(10 == 10));
+    println("10 != 5 : " + str(10 != 5));
+    println("true && false: " + str(true && false));
+    println("true || false: " + str(true || false));
+    println("!true        : " + str(!true));
+
+    // ── 4. Bitwise operators ──────────────────────────────────
+    println("\n--- 4. Bitwise ---");
+    int bf = 0xFF;
+    println("0xFF & 0x0F = " + str(bf & 0x0F));
+    println("0xFF | 0x100 = " + str(bf | 0x100));
+    println("0xFF ^ 0x0F = " + str(bf ^ 0x0F));
+    println("1 << 4 = " + str(1 << 4));
+    println("256 >> 3 = " + str(256 >> 3));
+    println("~0 = " + str(~0));
+
+    // ── 5. If / else if / else ────────────────────────────────
+    println("\n--- 5. If/Else ---");
+    int score = 75;
+    if (score >= 90) {
+        println("Grade: A");
+    } else if (score >= 80) {
+        println("Grade: B");
+    } else if (score >= 70) {
+        println("Grade: C");
+    } else {
+        println("Grade: F");
+    }
+
+    // ── 6. While loop ─────────────────────────────────────────
+    println("\n--- 6. While Loop (sum 1..10) ---");
+    int sum = 0;
+    int i = 1;
+    while (i <= 10) {
+        sum += i;
+        i++;
+    }
+    println("Sum 1..10 = " + str(sum));
+
+    // ── 7. For loop ───────────────────────────────────────────
+    println("\n--- 7. For Loop (squares) ---");
+    string squares = "";
+    for (int j = 1; j <= 6; j++) {
+        squares += str(j*j) + " ";
+    }
+    println("Squares: " + squares);
+
+    // ── 8. Break & Continue ───────────────────────────────────
+    println("\n--- 8. Break & Continue ---");
+    int bc_sum = 0;
+    for (int k = 0; k < 20; k++) {
+        if (k % 2 == 0) { continue; }
+        if (k > 9)      { break; }
+        bc_sum += k;
+    }
+    println("Sum of odd [1..9] = " + str(bc_sum));
+
+    // ── 9. Recursive functions ────────────────────────────────
+    println("\n--- 9. Recursion ---");
+    println("factorial(10) = " + str(factorial(10)));
+    println("fibonacci(12) = " + str(fibonacci(12)));
+
+    // ── 10. Structs ───────────────────────────────────────────
+    println("\n--- 10. Structs ---");
+    Vec3 pos;
+    pos.x = 3.0;
+    pos.y = 4.0;
+    pos.z = 0.0;
+    println("pos = (" + str(pos.x) + ", " + str(pos.y) + ", " + str(pos.z) + ")");
+    println("length = " + str(vec3_length(pos)));
+
+    Vec3 dir;
+    dir.x = 1.0;
+    dir.y = 0.0;
+    dir.z = 0.0;
+    println("dot(pos, dir) = " + str(vec3_dot(pos, dir)));
+
+    Player p;
+    p.id     = 42;
+    p.name   = "BlockMan";
+    p.health = 100.0;
+    p.position.x = 10.0;
+    p.position.y = 0.0;
+    p.position.z = 5.0;
+
+    println("Player: " + p.name + " id=" + str(p.id) + " hp=" + str(p.health));
+    println("Pos: (" + str(p.position.x) + ", " + str(p.position.y) + ", " + str(p.position.z) + ")");
+
+    // ── 11. Arrays ────────────────────────────────────────────
+    println("\n--- 11. Arrays ---");
+    int[] nums = array();
+    push(nums, 10);
+    push(nums, 20);
+    push(nums, 30);
+    push(nums, 40);
+    push(nums, 50);
+    println("array = " + str(nums));
+    println("len   = " + str(len(nums)));
+    println("nums[2] = " + str(nums[2]));
+    nums[2] = 999;
+    println("after nums[2]=999: " + str(nums));
+    int popped = pop(nums);
+    println("popped: " + str(popped) + " | array now: " + str(nums));
+
+    // ── 12. Type casting ──────────────────────────────────────
+    println("\n--- 12. Type Casting ---");
+    float fv = 3.99;
+    int   iv = (int)fv;
+    println("(int)3.99 = " + str(iv));
+    float fv2 = (float)42;
+    println("(float)42 = " + str(fv2));
+    string sv = str(12345);
+    println("str(12345) = " + sv);
+    println("typeof(42)    = " + typeof(42));
+    println("typeof(3.14)  = " + typeof(3.14));
+    println("typeof(true)  = " + typeof(true));
+    println("typeof(\"hi\") = " + typeof("hi"));
+
+    // ── 13. Math built-ins ────────────────────────────────────
+    println("\n--- 13. Math ---");
+    println("sqrt(144)    = " + str(sqrt(144.0)));
+    println("pow(2, 10)   = " + str(pow(2.0, 10.0)));
+    println("abs(-42)     = " + str(abs(-42)));
+    println("min(3, 7)    = " + str(min(3, 7)));
+    println("max(3, 7)    = " + str(max(3, 7)));
+    println("floor(3.7)   = " + str(floor(3.7)));
+    println("ceil(3.2)    = " + str(ceil(3.2)));
+
+    // ── 14. Primality sieve ───────────────────────────────────
+    println("\n--- 14. Primes up to 50 ---");
+    string primes_str = "";
+    for (int n = 2; n <= 50; n++) {
+        if (is_prime(n)) {
+            primes_str += str(n) + " ";
+        }
+    }
+    println(primes_str);
+
+    // ── 15. String operations ─────────────────────────────────
+    println("\n--- 15. Strings ---");
+    string msg = "Raze";
+    println("len(\"Raze\") = " + str(len(msg)));
+    println("concat: " + msg + " v1.0 - " + "Game Scripting Language");
+
+    // ── 16. Native raw-address calls ─────────────────────────
+    println("\n--- 16. Raw Native Calls (via actual function addresses) ---");
+    // These call REAL C functions via their runtime addresses.
+    // native_add / native_multiply / native_clamp / native_log are
+    // registered in main.cpp with reinterpret_cast<uintptr_t>(fn_ptr).
+    // The interpreter casts the address back and calls it — zero overhead.
+
+    int result_add  = native_add(17, 25);
+    println("native_add(17, 25) returned: " + str(result_add));
+
+    int result_mul  = native_multiply(6, 7);
+    println("native_multiply(6, 7) returned: " + str(result_mul));
+
+    int clamped = native_clamp(150, 0, 100);
+    println("native_clamp(150, 0, 100) returned: " + str(clamped));
+
+    native_log(0xDEAD, 42);
+
+    // ── 17. Host-callback natives (float args) ────────────────
+    println("\n--- 17. Host Callbacks (float native calls) ---");
+    // These use the C++ callback path which handles floats correctly.
+    // In a real game injection, you'd replace with actual game addresses.
+    Vec3 bomb_pos;
+    bomb_pos.x = 128.5;
+    bomb_pos.y = 64.0;
+    bomb_pos.z = 256.0;
+
+    explode(bomb_pos.x, bomb_pos.y, bomb_pos.z, 15.0);
+
+    int hp = get_health(42);
+    println("Entity 42 health: " + str(hp));
+
+    set_pos(100.0, 50.0, 200.0);
+
+    // ── 18. Simulate game loop ────────────────────────────────
+    println("\n--- 18. Game Loop Simulation ---");
+    float player_hp = 100.0;
+    float damage_per_tick = 7.5;
+    int   tick = 0;
+
+    while (player_hp > 0.0) {
+        player_hp -= damage_per_tick;
+        player_hp = clamp_f(player_hp, 0.0, 100.0);
+        tick++;
+        if (tick % 3 == 0) {
+            println("  tick=" + str(tick) + " hp=" + str(player_hp));
+        }
+        if (tick >= 15) { break; }
+    }
+    println("Simulation ended at tick " + str(tick));
+
+    // ── 19. Nested structs & distance ────────────────────────
+    println("\n--- 19. Distance between players ---");
+    Vec3 a_pos; a_pos.x = 0.0;  a_pos.y = 0.0;  a_pos.z = 0.0;
+    Vec3 b_pos; b_pos.x = 3.0;  b_pos.y = 4.0;  b_pos.z = 0.0;
+    float dist = distance(a_pos, b_pos);
+    println("distance((0,0,0), (3,4,0)) = " + str(dist));
+
+    // ── 20. FizzBuzz (classic) ────────────────────────────────
+    println("\n--- 20. FizzBuzz (1..20) ---");
+    for (int n = 1; n <= 20; n++) {
+        if (n % 15 == 0)      { print("FizzBuzz "); }
+        else if (n % 3 == 0)  { print("Fizz "); }
+        else if (n % 5 == 0)  { print("Buzz "); }
+        else                  { print(str(n) + " "); }
+    }
+    println("");
+
+    println("\n=== All tests passed! ===");
+}

@@ -1,0 +1,559 @@
+// ================================================================
+//  test.rz — Raze v2.0 Full Feature Test
+// ================================================================
+
+// ── 1. auto / val / var / let type inference ──────────────────
+func test_inference() {
+    println("\n=== 1. auto / val / var / let inference ===");
+
+    auto  x   = 42;
+    val   y   = 3.14;
+    var   msg = "hello raze";
+    let   flag = true;
+
+    println("auto x   = " + str(x));
+    println("val  y   = " + str(y));
+    println("var  msg = " + msg);
+    println("let  flag= " + str(flag));
+
+    // Type inference in loops
+    auto total = 0;
+    for (auto i = 1; i <= 5; i++) { total += i; }
+    println("sum 1..5 (auto loop) = " + str(total));
+}
+
+// ── 2. String methods ─────────────────────────────────────────
+func test_strings() {
+    println("\n=== 2. String Methods ===");
+
+    val s = "  Hello, Raze World!  ";
+    println(s.trim());
+    println(s.trim().upper());
+    println(s.trim().lower());
+    println(s.trim().replace("Raze", "Awesome"));
+    println("contains 'World': " + str(s.contains("World")));
+    println("startsWith '  He': " + str(s.startsWith("  He")));
+    println("indexOf 'Raze': " + str(s.indexOf("Raze")));
+
+    val parts = "one,two,three,four".split(",");
+    println("split: " + str(parts));
+    println("join:  " + parts.join(" | "));
+
+    println("padLeft:  '" + "42".padLeft(8, "0") + "'");
+    println("padRight: '" + "42".padRight(8, ".") + "'");
+    println("repeat:   " + "ab".repeat(4));
+    println("reverse:  " + "Raze".reverse());
+    println("slice:    " + "Hello World".slice(6, 5));
+
+    // format
+    val tmpl = "Name: {}, Score: {}, Active: {}";
+    println(tmpl.format("BlockMan", 9001, true));
+
+    // String indexing — should return single-char string (not ASCII int)
+    val word = "Raze";
+    println("word[0] = " + word[0]);   // R
+    println("word[1] = " + word[1]);   // a
+    println("word[-1]= " + word[-1]);  // e  (negative index)
+
+    // sprintf
+    println(sprintf("hex=%x dec=%d float=%.2f str=%s", 255, 255, 3.14159, "pi"));
+
+    // char / ord
+    println("chr(65)=" + chr(65));
+    println("ord('A')=" + str(ord("A")));
+}
+
+// ── 3. Array methods ──────────────────────────────────────────
+func test_arrays() {
+    println("\n=== 3. Array Methods ===");
+
+    var nums = [10, 3, 7, 1, 9, 4, 6, 2, 8, 5];
+    println("original: " + str(nums));
+    println("sorted:   " + str(nums.sort()));
+    println("reversed: " + str(nums.reverse()));
+    println("slice[2:5]:" + str(nums.slice(2, 5)));
+
+    // map / filter / reduce
+    var squared = nums.map(func(int n, int i) -> int { return n * n; });
+    println("map(n*n): " + str(squared));
+
+    var evens = nums.filter(func(int n, int i) -> bool { return n % 2 == 0; });
+    println("filter(even): " + str(evens));
+
+    auto sumAll = nums.reduce(func(int acc, int n, int i) -> int { return acc + n; }, 0);
+    println("reduce(sum): " + str(sumAll));
+
+    // find / any / all
+    auto found = nums.find(func(int n, int i) -> bool { return n > 7; });
+    println("find(>7): " + str(found));
+    println("any(>9):  " + str(nums.any(func(int n) -> bool { return n > 9; })));
+    println("all(>0):  " + str(nums.all(func(int n) -> bool { return n > 0; })));
+
+    // sum / min / max
+    println("sum: " + str(nums.sum()));
+    println("min: " + str(nums.min()));
+    println("max: " + str(nums.max()));
+
+    // flat
+    var nested = [[1, 2], [3, 4], [5, 6]];
+    println("flat: " + str(nested.flat()));
+
+    // zip
+    var a = [1, 2, 3];
+    var b = ["a", "b", "c"];
+    println("zip: " + str(a.zip(b)));
+
+    // unique
+    var dupes = [1, 2, 2, 3, 3, 3, 4];
+    println("unique: " + str(dupes.unique()));
+
+    // forEach
+    print("forEach: ");
+    [10, 20, 30].forEach(func(int n, int i) { print(str(n) + " "); });
+    println("");
+
+    // insert / remove
+    var arr = [1, 2, 3, 4, 5];
+    arr.insert(2, 99);
+    println("after insert(2,99): " + str(arr));
+    arr.remove(2);
+    println("after remove(2):    " + str(arr));
+}
+
+// ── 4. Map (dict) ─────────────────────────────────────────────
+func test_maps() {
+    println("\n=== 4. Maps ===");
+
+    var m = {"name": "BlockMan", "hp": 100, "level": 42};
+    println("map: " + str(m));
+    println("keys:   " + str(m.keys()));
+    println("values: " + str(m.values()));
+    println("has 'hp': " + str(m.has("hp")));
+
+    m["score"] = 9001;
+    m["name"]  = "SuperBlockMan";
+    println("after update: " + str(m));
+
+    m.remove("level");
+    println("after remove 'level': " + str(m));
+
+    // Map literal with int keys (as strings)
+    var config = {"debug": true, "version": "2.0", "port": 8080};
+    println("config.version = " + config["version"]);
+    println("config.port    = " + str(config["port"]));
+
+    // get with default
+    println("config.get('missing', 'default') = " + config.get("missing", "default"));
+
+    // forEach
+    print("entries: ");
+    m.forEach(func(string k, var v) { print(k + "=" + str(v) + " "); });
+    println("");
+
+    // merge
+    var extra = {"power": 9999, "clan": "DevSquad"};
+    m.merge(extra);
+    println("after merge: " + str(m));
+}
+
+// ── 5. Classes with inheritance ───────────────────────────────
+class Entity {
+    string name;
+    float  hp;
+    int    level;
+
+    func init(string n, float h, int lv) {
+        this.name  = n;
+        this.hp    = h;
+        this.level = lv;
+    }
+
+    func describe() -> string {
+        return "[" + this.name + " | hp=" + str(this.hp) + " | lv=" + str(this.level) + "]";
+    }
+
+    func isAlive() -> bool {
+        return this.hp > 0.0;
+    }
+
+    func takeDamage(float dmg) {
+        this.hp -= dmg;
+        if (this.hp < 0.0) { this.hp = 0.0; }
+    }
+}
+
+class Player extends Entity {
+    int    score;
+    string weapon;
+
+    func init(string n, float h, int lv, string w) {
+        super.init(n, h, lv);
+        this.weapon = w;
+        this.score  = 0;
+    }
+
+    func describe() -> string {
+        return super.describe() + " weapon=" + this.weapon + " score=" + str(this.score);
+    }
+
+    func attack(Entity target) {
+        float dmg = (float)(this.level) * 5.5;
+        target.takeDamage(dmg);
+        this.score += (int)dmg;
+        println("  " + this.name + " attacks " + target.name + " for " + str(dmg) + " dmg!");
+    }
+
+    func levelUp() {
+        this.level++;
+        this.hp = this.hp * 1.1;
+        println("  " + this.name + " leveled up to " + str(this.level) + "!");
+    }
+}
+
+class Boss extends Entity {
+    int    phase;
+    float  rage;
+
+    func init(string n, float h) {
+        super.init(n, h, 99);
+        this.phase = 1;
+        this.rage  = 0.0;
+    }
+
+    func describe() -> string {
+        return super.describe() + " phase=" + str(this.phase) + " rage=" + str(this.rage);
+    }
+
+    func enrage() {
+        this.rage += 10.0;
+        this.level += 5;
+        if (this.phase < 3) { this.phase++; }
+        println("  BOSS ENRAGES! phase=" + str(this.phase) + " rage=" + str(this.rage));
+    }
+}
+
+func test_classes() {
+    println("\n=== 5. Classes & Inheritance ===");
+
+    auto player = new Player("HeroX", 150.0, 10, "Flame Sword");
+    auto boss   = new Boss("DarkLord", 500.0);
+
+    println("Player: " + player.describe());
+    println("Boss:   " + boss.describe());
+
+    player.attack(boss);
+    boss.enrage();
+    player.attack(boss);
+    player.levelUp();
+    player.attack(boss);
+
+    println("Player alive: " + str(player.isAlive()));
+    println("Boss alive:   " + str(boss.isAlive()));
+    println("Boss HP left: " + str(boss.hp));
+    println("Player score: " + str(player.score));
+}
+
+// ── 6. First-class functions / lambdas / closures ─────────────
+func makeCounter(int start) -> var {
+    var count = start;
+    return func() -> int {
+        count++;
+        return count;
+    };
+}
+
+func apply(var fn, int x) -> int {
+    return fn(x);
+}
+
+func compose(var f, var g) -> var {
+    return func(int x) -> int { return f(g(x)); };
+}
+
+func test_functions() {
+    println("\n=== 6. First-class Functions & Closures ===");
+
+    // Closure / counter
+    auto counter = makeCounter(0);
+    println("counter: " + str(counter()) + " " + str(counter()) + " " + str(counter()));
+
+    // Lambda as value
+    auto double = func(int x) -> int { return x * 2; };
+    auto triple = func(int x) -> int { return x * 3; };
+    println("apply(double, 7) = " + str(apply(double, 7)));
+
+    // Compose
+    auto doubleThenTriple = compose(triple, double);
+    println("compose(triple, double)(5) = " + str(doubleThenTriple(5)));
+
+    // Higher-order with arrays
+    var nums = range(1, 8);
+    println("range(1,8) = " + str(nums));
+
+    auto doubled = nums.map(func(int n, int i) -> int { return n * 2; });
+    println("doubled: " + str(doubled));
+
+    auto bigOnes = doubled.filter(func(int n, int i) -> bool { return n > 8; });
+    println("filter >8: " + str(bigOnes));
+}
+
+// ── 7. try / catch / throw ────────────────────────────────────
+func safeDivide(float a, float b) -> float {
+    if (b == 0.0) { throw "Division by zero!"; }
+    return a / b;
+}
+
+func test_exceptions() {
+    println("\n=== 7. Exceptions (try/catch/throw) ===");
+
+    try {
+        auto r = safeDivide(10.0, 2.0);
+        println("10 / 2 = " + str(r));
+    } catch (e) {
+        println("error: " + str(e));
+    }
+
+    try {
+        auto r = safeDivide(5.0, 0.0);
+        println("should not reach here");
+    } catch (e) {
+        println("caught: " + str(e));
+    }
+
+    // Nested try
+    try {
+        try {
+            throw "inner error";
+        } catch (inner) {
+            println("inner caught: " + inner);
+            throw "re-thrown: " + inner;
+        }
+    } catch (outer) {
+        println("outer caught: " + outer);
+    }
+}
+
+// ── 8. for-in loops ───────────────────────────────────────────
+func test_forin() {
+    println("\n=== 8. For-In Loops ===");
+
+    // Array iteration
+    var fruits = ["apple", "banana", "cherry", "durian"];
+    print("fruits: ");
+    for (val f in fruits) { print(f + " "); }
+    println("");
+
+    // Map iteration (over keys)
+    var scores = {"Alice": 95, "Bob": 87, "Carol": 91};
+    println("scores:");
+    for (var key in scores) {
+        println("  " + key + " -> " + str(scores[key]));
+    }
+
+    // String iteration (char-by-char)
+    print("chars: ");
+    for (auto ch in "Raze") { print("[" + ch + "]"); }
+    println("");
+
+    // range() + for-in
+    print("range(0,10,2): ");
+    for (val n in range(0, 10, 2)) { print(str(n) + " "); }
+    println("");
+}
+
+// ── 9. Ternary, null-coalescing, type checks ──────────────────
+func test_operators() {
+    println("\n=== 9. Ternary / Null-Coalescing / typeof ===");
+
+    auto x = 42;
+    auto label = (x > 100) ? "big" : "small";
+    println("ternary: " + label);
+
+    var maybe = null;
+    var result = maybe ?? "default value";
+    println("null-coalescing: " + result);
+
+    var notNull = "actual";
+    println("null-coalescing2: " + (notNull ?? "fallback"));
+
+    println("typeof 42:    " + typeof(42));
+    println("typeof 3.14:  " + typeof(3.14));
+    println("typeof true:  " + typeof(true));
+    println("typeof 'hi':  " + typeof("hi"));
+    println("typeof []:    " + typeof([]));
+    println("typeof {}:    " + typeof({}));
+
+    println("isNull(null): " + str(isNull(null)));
+    println("isInt(42):    " + str(isInt(42)));
+    println("isString('x'):"+str(isString("x")));
+}
+
+// ── 10. Built-in hex/bin/format ───────────────────────────────
+func test_builtins() {
+    println("\n=== 10. Built-in Conversions & Math ===");
+
+    println("hex(255)    = " + hex(255));
+    println("hex(65535)  = " + hex(65535));
+    println("hex(0)      = " + hex(0));
+    println("bin(42)     = " + bin(42));
+    println("oct(255)    = " + oct(255));
+    println("parseHex('0xFF') = " + str(parseHex("0xFF")));
+    println("parseBin('0b1010') = " + str(parseBin("0b1010")));
+
+    println("PI  = " + str(PI));
+    println("TAU = " + str(TAU));
+    println("E   = " + str(E));
+    println("log(E)   = " + str(log(E)));
+    println("log2(8)  = " + str(log2(8.0)));
+    println("log10(100)= " + str(log10(100.0)));
+    println("hypot(3,4)= " + str(hypot(3.0, 4.0)));
+    println("lerp(0,10,0.3) = " + str(lerp(0.0, 10.0, 0.3)));
+    println("round(3.7) = " + str(round(3.7)));
+    println("trunc(3.9) = " + str(trunc(3.9)));
+}
+
+// ── 11. Raw native address call ───────────────────────────────
+func test_native() {
+    println("\n=== 11. Raw Native Address Calls ===");
+    auto r = native_add(100, 200);
+    println("native_add(100,200) = " + str(r));
+    auto c = native_clamp(999, 0, 100);
+    println("native_clamp(999,0,100) = " + str(c));
+}
+
+// ── 12. The original hex() bug test ───────────────────────────
+func hex_custom(int n) -> string {
+    val hex_chars = "0123456789ABCDEF";
+    var result = "";
+
+    if (n == 0) { return "0x0"; }
+
+    while (n > 0) {
+        auto digit = n % 16;
+        // ✅ FIXED: indexing now returns 1-char string, not ASCII int
+        var ch = hex_chars[digit];
+        result = ch + result;
+        n = n / 16;
+    }
+    return "0x" + result;
+}
+
+func test_hex_bug() {
+    println("\n=== 12. Original Hex Bug Fix ===");
+    println("hex_custom(255)   = " + hex_custom(255));
+    println("hex_custom(256)   = " + hex_custom(256));
+    println("hex_custom(65535) = " + hex_custom(65535));
+    println("hex_custom(0)     = " + hex_custom(0));
+    // also the original code from the issue:
+    println("hello" + " world");
+
+    auto a = (int)69.0;
+    println("(int)69.0 = " + str(a));
+
+    for (int i = 0; i <= 5; i++) {
+        println("hello " + str(i));
+    }
+}
+
+// ── 13. Recursion + closures ──────────────────────────────────
+func memoize(var fn) -> var {
+    var cache = {};
+    return func(int n) -> int {
+        val key = str(n);
+        if (cache.has(key)) { return cache[key]; }
+        auto r = fn(n);
+        cache[key] = r;
+        return r;
+    };
+}
+
+func fib_slow(int n) -> int {
+    if (n <= 1) { return n; }
+    return fib_slow(n-1) + fib_slow(n-2);
+}
+
+func test_advanced() {
+    println("\n=== 13. Memoization + Advanced Closures ===");
+
+    auto fib = memoize(func(int n) -> int { return fib_slow(n); });
+    for (val i in range(0, 13)) {
+        print(str(fib(i)) + " ");
+    }
+    println("");
+
+    // Pipeline: compose a data processing chain
+    var data = range(1, 11);
+    auto result = data
+        .filter(func(int n, int i) -> bool { return n % 2 != 0; })
+        .map(func(int n, int i) -> int { return n * n; })
+        .reduce(func(int acc, int n, int i) -> int { return acc + n; }, 0);
+    println("sum of squares of odd [1..10] = " + str(result));
+}
+
+// ── 14. assert / error handling ───────────────────────────────
+func test_assert() {
+    println("\n=== 14. Assert ===");
+
+    try {
+        assert(1 + 1 == 2, "math is broken");
+        println("assert(true): OK");
+    } catch (e) { println("fail: " + str(e)); }
+
+    try {
+        assert(false, "intentional failure");
+    } catch (e) { println("caught assert: " + str(e)); }
+}
+
+// ── 15. Struct ────────────────────────────────────────────────
+struct Vec3 {
+    float x;
+    float y;
+    float z;
+}
+
+func vec3_add(Vec3 a, Vec3 b) -> Vec3 {
+    Vec3 r;
+    r.x = a.x + b.x;
+    r.y = a.y + b.y;
+    r.z = a.z + b.z;
+    return r;
+}
+
+func vec3_str(Vec3 v) -> string {
+    return "(" + str(v.x) + ", " + str(v.y) + ", " + str(v.z) + ")";
+}
+
+func test_structs() {
+    println("\n=== 15. Structs ===");
+    Vec3 a; a.x=1.0; a.y=2.0; a.z=3.0;
+    Vec3 b; b.x=4.0; b.y=5.0; b.z=6.0;
+    auto c = vec3_add(a, b);
+    println("a = " + vec3_str(a));
+    println("b = " + vec3_str(b));
+    println("a+b = " + vec3_str(c));
+}
+
+// ── Entry point ───────────────────────────────────────────────
+func main() {
+    println("╔══════════════════════════════════════╗");
+    println("║   Raze Language v2.0 — Full Test     ║");
+    println("╚══════════════════════════════════════╝");
+
+    test_inference();
+    test_strings();
+    test_arrays();
+    test_maps();
+    test_classes();
+    test_functions();
+    test_exceptions();
+    test_forin();
+    test_operators();
+    test_builtins();
+    test_native();
+    test_hex_bug();
+    test_advanced();
+    test_assert();
+    test_structs();
+
+    println("\n✅ All tests complete!");
+}

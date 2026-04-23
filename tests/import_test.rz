@@ -1,0 +1,66 @@
+// tests/import_test.rz — Tests the import system + stdlib modules
+import "stdlib/math.rz";
+import "stdlib/string.rz";
+import "stdlib/collections.rz";
+
+func main() {
+    println("=== Import / stdlib test ===\n");
+
+    // math.rz
+    println("--- math.rz ---");
+    println("isPrime(97)       = " + str(isPrime(97)));
+    println("primes up to 30   = " + str(primes(30)));
+    println("gcd(48, 18)       = " + str(gcd(48, 18)));
+    println("lcm(4, 6)         = " + str(lcm(4, 6)));
+    println("factorial(8)      = " + str(factorial(8)));
+    println("fibonacci(10)     = " + str(fibonacci(10)));
+    println("deg2rad(180)      = " + str(deg2rad(180.0)));
+    println("smoothstep(0,1,.5)= " + str(smoothstep(0.0, 1.0, 0.5)));
+    println("map_range(5,0,10,0,100) = " + str(map_range(5.0,0.0,10.0,0.0,100.0)));
+
+    // string.rz
+    println("\n--- string.rz ---");
+    println("strTitle('hello world') = " + strTitle("hello world"));
+    println("strCenter('Raze',20,'-')= '" + strCenter("Raze", 20, "-") + "'");
+    println("strIsAlpha('abc') = " + str(strIsAlpha("abc")));
+    println("strIsDigit('123') = " + str(strIsDigit("123")));
+    println("strIsDigit('12x') = " + str(strIsDigit("12x")));
+
+    // collections.rz — Stack
+    println("\n--- Stack ---");
+    auto stack = new Stack();
+    stack.push(10);
+    stack.push(20);
+    stack.push(30);
+    println("stack: " + stack.describe());
+    println("peek:  " + str(stack.peek()));
+    println("pop:   " + str(stack.pop()));
+    println("size:  " + str(stack.size()));
+
+    // collections.rz — Queue
+    println("\n--- Queue ---");
+    auto q = new Queue();
+    q.enqueue("a");
+    q.enqueue("b");
+    q.enqueue("c");
+    println("queue:    " + q.describe());
+    println("dequeue:  " + str(q.dequeue()));
+    println("front:    " + str(q.front()));
+
+    // collections.rz — Set
+    println("\n--- Set ---");
+    auto s1 = new Set();
+    s1.add(1); s1.add(2); s1.add(3); s1.add(2); // dup
+    println("s1: " + s1.describe());
+    println("has(2): " + str(s1.has(2)));
+    println("has(9): " + str(s1.has(9)));
+
+    auto s2 = new Set();
+    s2.add(2); s2.add(3); s2.add(4);
+    println("s2: " + s2.describe());
+    println("union:    " + s1.union(s2).describe());
+    println("intersect:" + s1.intersect(s2).describe());
+    println("diff s1-s2:" + s1.difference(s2).describe());
+
+    println("\n✅ Import test done!");
+}
