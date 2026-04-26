@@ -1,0 +1,40 @@
+// stdlib/event.rz - Event Emitter
+// import "stdlib/event.rz";
+
+class EventEmitter {
+    var listeners;
+
+    func init() { this.listeners = {}; }
+
+    func on(string event, var fn) {
+        if (!this.listeners.has(event)) { this.listeners[event] = array(); }
+        this.listeners[event].push(fn);
+    }
+
+    func off(string event) {
+        this.listeners.remove(event);
+    }
+
+    func emit(string event, ...args) {
+        if (!this.listeners.has(event)) { return; }
+        for (auto fn in this.listeners[event]) {
+            fn(...args);
+        }
+    }
+
+    func once(string event, var fn) {
+        var wrapper = null;
+        auto self = this;
+        // Create a wrapper that removes itself after first call
+        wrapper = func(...args) {
+            fn(...args);
+            self.off(event);
+        };
+        this.on(event, wrapper);
+    }
+
+    func listenerCount(string event) -> int {
+        if (!this.listeners.has(event)) { return 0; }
+        return len(this.listeners[event]);
+    }
+}

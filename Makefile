@@ -1,28 +1,33 @@
 CXX      = g++
 CXXFLAGS = -std=c++17 -O2 -Wall -Wno-unused-parameter -Wno-unused-variable \
-           -Wno-misleading-indentation
+           -Wno-misleading-indentation -Wno-switch
 TARGET   = raze
 SRC      = main.cpp
 HEADERS  = $(wildcard include/*.hpp)
 
-.PHONY: all clean test repl eval
+.PHONY: all clean test test-import test-all repl
 
 all: $(TARGET)
 
 $(TARGET): $(SRC) $(HEADERS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC)
-	@echo "✓ Built ./$(TARGET)"
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC) && echo "Built ./$(TARGET)"
 
 test: $(TARGET)
-	@echo "────────────────────────────────────────"
+	@echo "================================================"
 	./$(TARGET) tests/test.rz
-	@echo "────────────────────────────────────────"
+	@echo "================================================"
+
+test-import: $(TARGET)
+	./$(TARGET) tests/import_test.rz
+
+test-all: $(TARGET) test test-import
+	@echo "All test suites passed!"
 
 repl: $(TARGET)
 	./$(TARGET)
 
-eval: $(TARGET)
-	./$(TARGET) -e 'println("Raze v2.0: " + str(6*7)); println("hex(255)=" + hex(255));'
-
 clean:
-	rm -f $(TARGET) *.o
+	rm -f $(TARGET)
+
+eval: $(TARGET)
+	./$(TARGET) -e 'println("Raze v3.0 " + RAZE_VERSION); println(hex(255));'

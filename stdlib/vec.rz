@@ -1,0 +1,65 @@
+// stdlib/vec.rz - Vector math (2D and 3D)
+// import "stdlib/vec.rz";
+
+class Vec2 {
+    float x; float y;
+    func init(float x, float y) { this.x = x; this.y = y; }
+    func add(Vec2 o) -> Vec2 { return new Vec2(this.x+o.x, this.y+o.y); }
+    func sub(Vec2 o) -> Vec2 { return new Vec2(this.x-o.x, this.y-o.y); }
+    func scale(float s) -> Vec2 { return new Vec2(this.x*s, this.y*s); }
+    func dot(Vec2 o) -> float { return this.x*o.x + this.y*o.y; }
+    func length() -> float { return sqrt(this.x*this.x + this.y*this.y); }
+    func lengthSq() -> float { return this.x*this.x + this.y*this.y; }
+    func normalize() -> Vec2 {
+        auto len = this.length();
+        if (len == 0.0) { return new Vec2(0.0, 0.0); }
+        return new Vec2(this.x/len, this.y/len);
+    }
+    func distanceTo(Vec2 o) -> float { return this.sub(o).length(); }
+    func lerp(Vec2 o, float t) -> Vec2 {
+        return new Vec2(this.x+(o.x-this.x)*t, this.y+(o.y-this.y)*t);
+    }
+    func negate() -> Vec2 { return new Vec2(-this.x, -this.y); }
+    func angle() -> float  { return atan2(this.y, this.x); }
+    func toString() -> string { return "Vec2(" + str(this.x) + ", " + str(this.y) + ")"; }
+    static func zero()  -> Vec2 { return new Vec2(0.0, 0.0); }
+    static func one()   -> Vec2 { return new Vec2(1.0, 1.0); }
+    static func up()    -> Vec2 { return new Vec2(0.0, 1.0); }
+    static func right() -> Vec2 { return new Vec2(1.0, 0.0); }
+}
+
+class Vec3 {
+    float x; float y; float z;
+    func init(float x, float y, float z) { this.x=x; this.y=y; this.z=z; }
+    func add(Vec3 o) -> Vec3 { return new Vec3(this.x+o.x, this.y+o.y, this.z+o.z); }
+    func sub(Vec3 o) -> Vec3 { return new Vec3(this.x-o.x, this.y-o.y, this.z-o.z); }
+    func scale(float s) -> Vec3 { return new Vec3(this.x*s, this.y*s, this.z*s); }
+    func dot(Vec3 o) -> float { return this.x*o.x + this.y*o.y + this.z*o.z; }
+    func cross(Vec3 o) -> Vec3 {
+        return new Vec3(
+            this.y*o.z - this.z*o.y,
+            this.z*o.x - this.x*o.z,
+            this.x*o.y - this.y*o.x
+        );
+    }
+    func length() -> float { return sqrt(this.x*this.x + this.y*this.y + this.z*this.z); }
+    func lengthSq() -> float { return this.x*this.x + this.y*this.y + this.z*this.z; }
+    func normalize() -> Vec3 {
+        auto len = this.length();
+        if (len == 0.0) { return new Vec3(0.0,0.0,0.0); }
+        return new Vec3(this.x/len, this.y/len, this.z/len);
+    }
+    func distanceTo(Vec3 o) -> float { return this.sub(o).length(); }
+    func lerp(Vec3 o, float t) -> Vec3 {
+        return new Vec3(this.x+(o.x-this.x)*t, this.y+(o.y-this.y)*t, this.z+(o.z-this.z)*t);
+    }
+    func negate() -> Vec3 { return new Vec3(-this.x,-this.y,-this.z); }
+    func toString() -> string {
+        return "Vec3(" + str(this.x) + ", " + str(this.y) + ", " + str(this.z) + ")";
+    }
+    static func zero()    -> Vec3 { return new Vec3(0.0,0.0,0.0); }
+    static func one()     -> Vec3 { return new Vec3(1.0,1.0,1.0); }
+    static func up()      -> Vec3 { return new Vec3(0.0,1.0,0.0); }
+    static func forward() -> Vec3 { return new Vec3(0.0,0.0,1.0); }
+    static func right()   -> Vec3 { return new Vec3(1.0,0.0,0.0); }
+}

@@ -1,0 +1,100 @@
+// stdlib/algo.rz - Common algorithms
+// import "stdlib/algo.rz";
+
+// Binary search - returns index or -1
+func binarySearch(var arr, var target) -> int {
+    auto lo = 0; auto hi = len(arr) - 1;
+    while (lo <= hi) {
+        auto mid = (lo + hi) / 2;
+        auto v = arr[mid];
+        if (str(v) == str(target)) { return mid; }
+        if (v < target) { lo = mid + 1; }
+        else { hi = mid - 1; }
+    }
+    return -1;
+}
+
+// Quicksort
+func quicksort(var arr) -> var {
+    if (len(arr) <= 1) { return arr; }
+    auto pivot = arr[len(arr) / 2];
+    auto less   = arr.filter(func(var x, int i) -> bool { return x < pivot; });
+    auto equal  = arr.filter(func(var x, int i) -> bool { return x == pivot; });
+    auto greater= arr.filter(func(var x, int i) -> bool { return x > pivot; });
+    return quicksort(less).concat([equal]).flat().concat(quicksort(greater));
+}
+
+// Merge sort
+func mergesort(var arr) -> var {
+    if (len(arr) <= 1) { return arr; }
+    auto mid  = len(arr) / 2;
+    auto left  = mergesort(arr.slice(0, mid));
+    auto right = mergesort(arr.slice(mid));
+    return merge(left, right);
+}
+
+func merge(var a, var b) -> var {
+    auto result = array(); auto i = 0; auto j = 0;
+    while (i < len(a) && j < len(b)) {
+        if (a[i] <= b[j]) { push(result, a[i]); i++; }
+        else { push(result, b[j]); j++; }
+    }
+    while (i < len(a)) { push(result, a[i]); i++; }
+    while (j < len(b)) { push(result, b[j]); j++; }
+    return result;
+}
+
+// Count occurrences of value in array
+func count(var arr, var target) -> int {
+    auto c = 0;
+    for (auto v in arr) { if (str(v) == str(target)) { c++; } }
+    return c;
+}
+
+// Flatten nested array to any depth
+func deepFlat(var arr) -> var {
+    auto result = array();
+    for (auto item in arr) {
+        if (isArray(item)) {
+            auto sub = deepFlat(item);
+            for (auto x in sub) { push(result, x); }
+        } else { push(result, item); }
+    }
+    return result;
+}
+
+// Zip n arrays together
+func zipN(...arrays) -> var {
+    if (len(arrays) == 0) { return array(); }
+    auto minLen = len(arrays[0]);
+    for (auto a in arrays) { minLen = min(minLen, len(a)); }
+    auto result = array();
+    for (auto i in range(0, minLen)) {
+        auto group = array();
+        for (auto a in arrays) { push(group, a[i]); }
+        push(result, group);
+    }
+    return result;
+}
+
+// Sliding window
+func windows(var arr, int size) -> var {
+    auto result = array();
+    for (auto i in range(0, len(arr) - size + 1)) {
+        push(result, arr.slice(i, size));
+    }
+    return result;
+}
+
+// Deduplicate preserving order
+func unique(var arr) -> var { return arr.unique(); }
+
+// Partition into two arrays based on predicate
+func partition(var arr, var predFn) -> var {
+    auto yes = array(); auto no = array();
+    for (auto v in arr) {
+        if (predFn(v)) { push(yes, v); }
+        else           { push(no, v); }
+    }
+    return [yes, no];
+}

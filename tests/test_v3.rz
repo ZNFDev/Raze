@@ -1,0 +1,327 @@
+// Raze v3.0 - Full Test Suite
+
+enum Direction { NORTH, SOUTH, EAST, WEST }
+enum Status    { ALIVE=1, DEAD=0, STUNNED=2 }
+enum Color     { RED=0xFF0000, GREEN=0x00FF00, BLUE=0x0000FF }
+
+interface Describable { func describe; }
+
+class Entity implements Describable {
+    string name;
+    float  hp;
+    int    level;
+
+    func init(string n, float h, int lv) {
+        this.name  = n;
+        this.hp    = h;
+        this.level = lv;
+    }
+    func describe() -> string {
+        return "[${this.name} hp=${this.hp} lv=${this.level}]";
+    }
+    func takeDamage(float d) { this.hp -= d; if (this.hp < 0.0) { this.hp = 0.0; } }
+    func isAlive() -> bool   { return this.hp > 0.0; }
+    func heal(float amt)     { this.hp += amt; }
+
+    static func spawn(string n) -> Entity {
+        return new Entity(n, 100.0, 1);
+    }
+}
+
+class Player extends Entity {
+    string weapon;
+    int    score;
+
+    func init(string n, string w, int lv) {
+        super.init(n, 150.0, lv);
+        this.weapon = w;
+        this.score  = 0;
+    }
+    func describe() -> string {
+        return super.describe() + " weapon=" + this.weapon;
+    }
+    func attack(Entity target, float bonus) -> float {
+        auto dmg = (float)(this.level) * 8.5 * bonus;
+        target.takeDamage(dmg);
+        this.score += (int)dmg;
+        return dmg;
+    }
+}
+
+class Mage extends Player {
+    float mana;
+    func init(string n) {
+        super.init(n, "Staff", 5);
+        this.mana = 200.0;
+    }
+    func castSpell(Entity target) -> float {
+        if (this.mana < 30.0) { throw "Out of mana!"; }
+        this.mana -= 30.0;
+        auto dmg = (float)(this.level) * 15.0;
+        target.takeDamage(dmg);
+        this.score += (int)dmg;
+        return dmg;
+    }
+    func describe() -> string {
+        return super.describe() + " mana=" + str(this.mana);
+    }
+}
+
+func grade(int score) -> string {
+    switch (score / 10) {
+        case 10, 9: return "A";
+        case 8:     return "B";
+        case 7:     return "C";
+        case 6:     return "D";
+        default:    return "F";
+    }
+    return "F";
+}
+
+func greet(string name, string greeting = "Hello", string sfx = "!") -> string {
+    return "${greeting}, ${name}${sfx}";
+}
+
+func sumAll(...nums) -> int {
+    auto total = 0;
+    for (auto n in nums) { total += int(n); }
+    return total;
+}
+
+func pipe(var value, ...fns) -> var {
+    for (auto fn in fns) { value = fn(value); }
+    return value;
+}
+
+func myHex(int n) -> string {
+    val hex_chars = "0123456789ABCDEF";
+    if (n == 0) { return "0x0"; }
+    var result = "";
+    while (n > 0) {
+        result = hex_chars[n % 16] + result;
+        n = n / 16;
+    }
+    return "0x" + result;
+}
+
+func main() {
+    println("============================================");
+    println("  Raze Language v3.0 - Full Test Suite");
+    println("============================================");
+
+    // 1. String interpolation
+    println("\n--- 1. String Interpolation ---");
+    auto name  = "BlockMan";
+    auto level = 42;
+    auto hp    = 98.5;
+    println("Player: ${name}, Level: ${level}, HP: ${hp}");
+    println("2+2 = ${2 + 2}");
+    auto _tmp1 = "hello"; println("upper: " + _tmp1.upper());
+    println("chain: " + name.lower().repeat(2));
+    auto poem = `Backtick string:
+  line two
+  line three`;
+    println(poem);
+
+    // 2. Enums
+    println("\n--- 2. Enums ---");
+    auto dir = Direction::NORTH;
+    println("NORTH = ${dir}");
+    println("ALIVE = ${Status::ALIVE}");
+    println("RED   = " + hex(Color::RED));
+    println("GREEN = " + hex(Color::GREEN));
+
+    // 3. Switch
+    println("\n--- 3. Switch ---");
+    println("grade(95) = " + grade(95));
+    println("grade(83) = " + grade(83));
+    println("grade(71) = " + grade(71));
+    println("grade(55) = " + grade(55));
+    auto day = "Sat";
+    switch (day) {
+        case "Mon", "Tue", "Wed", "Thu", "Fri":
+            println(day + " is a weekday");
+        case "Sat", "Sun":
+            println(day + " is weekend");
+        default:
+            println("unknown day");
+    }
+
+    // 4. Match
+    println("\n--- 4. Match ---");
+    for (auto n in [1, 2, 3, 4, 99]) {
+        match n {
+            1       => { print("one "); }
+            2 | 3   => { print("two-or-three "); }
+            4 when n % 2 == 0 => { print("four "); }
+            default => { print("other(${n}) "); }
+        }
+    }
+    println("");
+
+    // 5. Classes & inheritance
+    println("\n--- 5. Classes & Inheritance ---");
+    auto p   = new Player("HeroX", "FlameAxe", 10);
+    auto m   = new Mage("Merlin");
+    auto mob = new Entity("Slime", 500.0, 5);
+    println("Player: " + p.describe());
+    println("Mage:   " + m.describe());
+    println("Mob:    " + mob.describe());
+    auto d1 = p.attack(mob, 1.0);
+    auto d2 = p.attack(mob, 2.5);
+    println("HeroX hits for " + str(d1) + ", crits for " + str(d2));
+    auto sd = m.castSpell(mob);
+    println("Merlin casts for " + str(sd));
+    println("Mob alive: " + str(mob.isAlive()) + " hp=" + str(mob.hp));
+    auto e2 = Entity::spawn("TestBot");
+    println("Static spawn: " + e2.describe());
+    println("p is Player: " + str(p is Player));
+    println("m is Mage:   " + str(m is Mage));
+    println("m is Entity: " + str(m is Entity));
+
+    // 6. Default params & variadic
+    println("\n--- 6. Default Params & Variadic ---");
+    println(greet("BlockMan"));
+    println(greet("Raze", "Welcome"));
+    println(greet("Dev", "Yo", "!"));
+    println("sumAll(1..5) = " + str(sumAll(1, 2, 3, 4, 5)));
+    auto spreadNums = [10, 20, 30];
+    println("spread sum   = " + str(sumAll(...spreadNums)));
+
+    // 7. New operators
+    println("\n--- 7. Operators ---");
+    println("2**10    = " + str(2 ** 10));
+    println("3.0**3   = " + str(3.0 ** 3));
+    println("0b1010   = " + str(0b1010));
+    println("0o755    = " + str(0o755));
+    println("0xDEAD   = " + str(0xDEAD));
+    println("1_000_000= " + str(1_000_000));
+    auto arr = [1, 2, 3, 4, 5];
+    println("3 in arr: " + str(3 in arr));
+    println("9 in arr: " + str(9 in arr));
+    println("42 is int:   " + str(42 is int));
+    println("3.14 is float:" + str(3.14 is float));
+    println("\"x\" is string:" + str("x" is string));
+    var nullObj = null;
+    println("null?.name = " + str(nullObj?.name));
+
+    // 8. Exceptions
+    println("\n--- 8. Exceptions ---");
+    try { throw "intentional error"; }
+    catch (e) { println("caught: " + str(e)); }
+    try { auto v = 1 / 0; }
+    catch (e) { println("div/0: " + str(e)); }
+    try { assert(false, "test assert"); }
+    catch (e) { println("assert: " + str(e)); }
+
+    // 9. JSON
+    println("\n--- 9. JSON ---");
+    auto data = {"name": "Raze", "version": 3, "tags": ["fast", "native", "cool"], "pi": 3.14};
+    auto jstr = toJson(data);
+    println("serialized ok (len=" + str(len(jstr)) + ")");
+    auto parsed = parseJson(jstr);
+    println("name   = " + parsed["name"]);
+    println("version= " + str(parsed["version"]));
+    println("tags[2]= " + parsed["tags"][2]);
+
+    // 10. HOF pipelines
+    println("\n--- 10. HOF Pipelines ---");
+    auto pipeResult = pipe(5,
+        func(int x) -> int { return x * 2; },
+        func(int x) -> int { return x + 10; },
+        func(int x) -> int { return x * x; }
+    );
+    println("pipe(5, *2, +10, ^2) = " + str(pipeResult));
+    auto answer = range(1, 21)
+        .filter(func(int n, int i) -> bool { return n % 2 != 0; })
+        .map(func(int n, int i) -> int { return n * n; })
+        .reduce(func(int acc, int n, int i) -> int { return acc + n; }, 0);
+    println("sum odd^2 [1..20] = " + str(answer));
+    auto words = ["banana", "apple", "cherry", "date"];
+    println("sortBy len: " + str(words.sortBy(func(string s) -> int { return len(s); })));
+    auto grouped = range(1, 11).groupBy(func(int n) -> string {
+        return n % 2 == 0 ? "even" : "odd";
+    });
+    println("evens: " + str(grouped["even"]));
+    println("odds:  " + str(grouped["odd"]));
+    println("chunks(3): " + str(range(1, 10).chunk(3)));
+    println("take(5):   " + str(range(1, 20).take(5)));
+    println("drop(7):   " + str(range(1, 12).drop(7)));
+    auto seq = [1, 3, 5, 6, 7, 9];
+    println("takeWhile(odd): " + str(seq.takeWhile(func(int n) -> bool { return n%2!=0; })));
+    println("dropWhile(odd): " + str(seq.dropWhile(func(int n) -> bool { return n%2!=0; })));
+    println("flatMap:   " + str([[1,2],[3,4]].flatMap(func(var v) -> var { return v; })));
+    println("toMap:     " + str(["a","bb","ccc"].toMap(func(string s) -> string { return str(len(s)); })));
+
+    // 11. Regex
+    println("\n--- 11. Regex ---");
+    auto text = "Scores: 42, 100, 7, 999";
+    auto nums = regexFind(text, "\\d+");
+    println("numbers: " + str(nums));
+    auto replaced = regexReplace(text, "\\d+", "N");
+    println("replaced: " + replaced);
+    auto isEmail = regexMatch("user@example.com", "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}");
+    println("email valid: " + str(isEmail));
+
+    // 12. Native raw address calls
+    println("\n--- 12. Native Address Calls ---");
+    auto nadd = native_add(700, 77);
+    println("native_add(700,77)    = " + str(nadd));
+    auto nclamp = native_clamp(9999, 0, 255);
+    println("native_clamp(9999,0,255)= " + str(nclamp));
+
+    // 13. Hex bug fix + string methods
+    println("\n--- 13. Strings & Hex Fix ---");
+    println("myHex(255)   = " + myHex(255));
+    println("myHex(65535) = " + myHex(65535));
+    println("hex(255)     = " + hex(255));
+    println("bin(42)      = " + bin(42));
+    println("oct(255)     = " + oct(255));
+    println("sprintf: "   + sprintf("pi=%.4f n=%d s=%s", 3.14159, 42, "raze"));
+    auto s = "  Hello World  ";
+    println("trim:    '" + s.trim() + "'");
+    println("title:   " + s.trim().title());
+    println("center:  '" + "hi".center(10, "*") + "'");
+    println("isAlpha: " + str("abc".isAlpha()));
+    println("isDigit: " + str("123".isDigit()));
+
+    // 14. Map advanced
+    println("\n--- 14. Map Advanced ---");
+    auto mmap = {"a": 1, "b": 2, "c": 3};
+    println("doubled: " + str(mmap.map(func(string k, var v) -> var { return v * 2; })));
+    println("filter:  " + str(mmap.filter(func(string k, var v) -> bool { return v > 1; })));
+    println("invert:  " + str(mmap.invert()));
+    auto m2 = mmap.copy();
+    m2.merge({"d": 4, "e": 5});
+    println("merge:   " + str(m2));
+
+    // 15. const
+    println("\n--- 15. const ---");
+    const PI_APPROX = 3.14159;
+    const MAX_HP    = 9999;
+    println("PI_APPROX = " + str(PI_APPROX));
+    println("MAX_HP    = " + str(MAX_HP));
+    try {
+        PI_APPROX = 0.0;
+    } catch (e) {
+        println("const protection: " + str(e));
+    }
+
+    // 16. System / time
+    println("\n--- 16. System ---");
+    auto t1 = clock();
+    auto fib = func(int n) -> int {
+        if (n <= 1) { return n; }
+        auto a = 0; auto b = 1;
+        for (auto i = 2; i <= n; i++) { auto tmp = a + b; a = b; b = tmp; }
+        return b;
+    };
+    println("fib(30) = " + str(fib(30)));
+    auto t2 = clock();
+    println("time: " + str(t2 - t1) + "ms");
+    println("cwd: " + getCwd());
+
+    println("\n============================================");
+    println("  All tests passed!");
+    println("============================================");
+}

@@ -1,66 +1,99 @@
-# ⚡ Raze Language (v2.0)
+# ⚡ Raze Language (v3.0)
 
-Raze is a fast, C/Java-style scripting language specifically engineered for **game modding**, engine scripting, and performance-critical automation. 
+Raze is a fast, C/Java-style scripting language with Python-level expressiveness, built for **game modding**, engine scripting, and high-performance automation.
 
-The core philosophy of Raze is providing **zero-overhead interoperability**. Unlike traditional scripting languages that require complex bindings or wrappers, Raze allows you to call native functions at **raw runtime memory addresses** directly from your script.
-
-## 🚀 Key Features
-
-* **Native Raw Calls:** Bind and execute functions at specific memory addresses with zero glue code.
-* **Modern Syntax:** A blend of C, Java, and Python-like type inference (`auto`, `val`, `let`).
-* **Object-Oriented:** Full class system with inheritance, `super` calls, and constructors.
-* **Functional Power:** First-class functions, lambdas, closures, and high-order array methods (`map`, `filter`, `reduce`).
-* **Modder Friendly:** Built-in support for hex literals, bitwise operations, and memory-address-based execution.
-* **Extensive Stdlib:** Comprehensive modules for Math, Collections (Stack/Queue/Set), and String manipulation.
+The core philosophy of Raze is **zero-overhead interoperability** — directly calling native functions at raw memory addresses without wrappers, bindings, or runtime overhead.
 
 ---
 
-## 🛠️ Installation & Build
+## 🚀 What's New in v3
 
-### Prerequisites
-* `g++` with C++17 support
-* `make`
+Raze v3 significantly expands language power and developer ergonomics:
 
-### Building from Source
+- ✨ String interpolation: `"Hello ${name}!"`
+- 📝 Multi-line backtick strings
+- 🧩 Enums with `::` access
+- 🔀 `switch` with multi-value cases
+- 🎯 Powerful `match` with pattern guards
+- ➗ `**` exponentiation operator
+- 🔢 Numeric literals: `0b`, `0o`, `1_000`
+- 🔍 `is` and `in` operators
+- 🛡️ Optional chaining: `?.` and `?[ ]`
+- 📦 Spread operator `...`
+- ⚙️ Default + variadic function parameters
+- 🔒 `const` variables
+- 🏛️ Static class methods `Class::method()`
+- 🧠 Interfaces (duck typing)
+- 🔗 Proper multi-level `super` dispatch
+- 📄 JSON support (`toJson`, `parseJson`)
+- 🔎 Regex support (`match`, `find`, `replace`)
+- 💻 `exec()` for shell command output
+- 📚 Massive stdlib:
+  - 30+ array methods
+  - 10+ map methods
+  - 25+ string utilities
+- 📦 Module system with caching
+
+---
+
+## 🔥 Core Features
+
+- **Native Raw Calls:** Call functions at memory addresses directly
+- **Modern Syntax:** C/Java structure with Python-like flexibility
+- **Object-Oriented:** Classes, inheritance, constructors, `super`
+- **Functional Programming:** Lambdas, closures, `map/filter/reduce`
+- **Low-Level Friendly:** Bitwise ops, hex literals, memory control
+- **Rich Standard Library**
+
+---
+
+## 🛠️ Build & Run
+
+### Requirements
+- `g++` (C++17)
+- `make`
+
+### Build
 ```bash
-git clone [https://github.com/ZNFDev/Raze.git](https://github.com/ZNFDev/Raze.git)
+git clone https://github.com/ZNFDev/Raze.git
 cd raze
-make          # Compiles the raze binary
-make test     # Runs the test suite
-
+make
+make test
+make test-import
 ```
 ### Usage
-```bash
-./raze script.rz              # Execute a script file
-./raze -e 'println("Hello");' # Evaluate inline code
-./raze                        # Enter the interactive REPL
-
 ```
-## 💎 The "Magic": Native Address Calls
-Raze was built to interact with running game processes. You can bind a script function to a memory address found via reverse engineering (e.g., Cheat Engine or IDA Pro).
-```raze
-// Bind a native game function at its runtime address
-// Syntax: native [name] = (params) -> return_type @ [address];
-native spawn_entity = (int, float, float, float) -> void @ 0x7F1234ABCD;
-native get_player_hp = (int) -> int @ 0x7F5566AABB;
+./raze script.rz              # Run script
+./raze -e 'println("hi");'    # Inline execution
+./raze                        # REPL
+```
+
+---
+
+### 💎 Native Address Calls (The Real Power)
+```
+native explode = (float, float, float, float) -> void @ 0x7F001234;
+native getHP   = (int) -> int @ 0x7F005678;
 
 func main() {
-    // Call the game's internal code directly
-    spawn_entity(101, 128.0, 64.0, 256.0);
-    
-    auto hp = get_player_hp(0);
-    println("Player 0 HP: " + str(hp));
+    explode(128.0, 64.0, 256.0, 15.0);
+    println("HP: " + str(getHP(42)));
 }
-
 ```
-## 📝 Syntax at a Glance
-### Classes & OOP
-```raze
+Directly invoke internal game functions — no bindings, no wrappers.
+
+
+---
+
+### 🧠 Language Overview
+
+Classes & OOP
+```
 class Player extends Entity {
     string weapon;
 
     func init(string name, float hp, string weapon) {
-        super.init(name, hp); 
+        super.init(name, hp);
         this.weapon = weapon;
     }
 
@@ -68,41 +101,79 @@ class Player extends Entity {
         return super.describe() + " wielding " + this.weapon;
     }
 }
-
-auto p = new Player("Hero", 100.0, "Excalibur");
-
 ```
-### Functional Arrays
-```raze
+
+---
+
+### Functional Programming
+```
 var nums = [1, 2, 3, 4, 5];
 
 auto evens = nums.filter(func(n, i) => n % 2 == 0);
 auto sum   = nums.reduce(func(acc, n, i) => acc + n, 0);
-
-println(nums.sort().join(" | ")); // 1 | 2 | 3 | 4 | 5
-
 ```
+
+---
+
+### Pattern Matching
+```
+match (value) {
+    1 | 2 => println("Low"),
+    3 => println("Mid"),
+    _ when value > 3 => println("High")
+}
+```
+
+---
+
 ### Error Handling
-```raze
+```
 try {
     var data = readFile("config.json");
 } catch (err) {
-    println("Failed to load: " + err);
+    println("Error: " + err);
 }
+```
 
-```
-## 📚 Standard Library Reference
-| Module | Features |
-|---|---|
-| **Core** | print, typeof, len, range, sprintf, type casting |
-| **Math** | sin, cos, sqrt, clamp, lerp, PI, INF, random |
-| **I/O** | readFile, writeFile, readLines, fileExists, listDir |
-| **String** | split, trim, replace, format, upper/lower, regex |
-| **System** | time, clock, sleep, getenv, system, exit |
-## ⚖️ ABI & Native Notes
- * **Integer/Pointer Args:** Direct raw address calls work natively on 64-bit platforms.
- * **Floating Point:** For functions requiring XMM register placement, use the C++ registerNative() API.
- * **Advanced Interop:** For complex mixed-type ABIs, Raze supports linking with libffi.
-## 📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-```
+---
+
+### 📚 Standard Library
+
+Module	Features
+
+Core	print, len, typeof, range, casting
+Math	sin, cos, sqrt, random, clamp
+I/O	readFile, writeFile, listDir
+String	split, trim, regex, format
+System	time, sleep, exec, getenv
+Collections	Stack, Queue, Set, Map
+Algo/Vec/Event	Advanced utilities
+
+
+
+---
+
+### ⚖️ Native / ABI Notes
+
+✅ Works natively on 64-bit systems
+
+⚠️ Float args may require register-aware binding
+
+🔧 Advanced interop supported via libffi
+
+
+
+---
+
+### 📖 Documentation
+
+Full language reference available in:
+
+docs/REFERENCE.md
+
+
+---
+
+### 📜 License
+
+MIT License — free to use, modify, and distribute.

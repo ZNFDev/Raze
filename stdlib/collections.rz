@@ -1,56 +1,42 @@
-// stdlib/collections.rz — Stack, Queue, Set
+// stdlib/collections.rz - Stack, Queue, Set, PriorityQueue
 // import "stdlib/collections.rz";
 
-// ── Stack ─────────────────────────────────────────────────────
 class Stack {
     var data;
     func init() { this.data = array(); }
-    func push(var v) { this.data.push(v); }
-    func pop() -> var {
-        if (this.data.isEmpty()) { throw "Stack underflow"; }
-        return this.data.pop();
-    }
-    func peek() -> var {
-        if (this.data.isEmpty()) { throw "Stack is empty"; }
-        return this.data.last();
-    }
+    func push(var v)     { this.data.push(v); }
+    func pop() -> var    { if (this.isEmpty()) { throw "Stack underflow"; } return this.data.pop(); }
+    func peek() -> var   { if (this.isEmpty()) { throw "Stack empty"; } return this.data.last(); }
     func isEmpty() -> bool { return this.data.isEmpty(); }
-    func size() -> int    { return this.data.len(); }
-    func clear()          { this.data.clear(); }
+    func size() -> int   { return this.data.len(); }
+    func clear()         { this.data.clear(); }
     func describe() -> string { return "Stack" + str(this.data); }
 }
 
-// ── Queue ─────────────────────────────────────────────────────
 class Queue {
     var data;
     func init() { this.data = array(); }
     func enqueue(var v) { this.data.push(v); }
-    func dequeue() -> var {
-        if (this.data.isEmpty()) { throw "Queue underflow"; }
-        return this.data.shift();
-    }
-    func front() -> var {
-        if (this.data.isEmpty()) { throw "Queue is empty"; }
-        return this.data.first();
-    }
+    func dequeue() -> var { if (this.isEmpty()) { throw "Queue underflow"; } return this.data.shift(); }
+    func front() -> var { if (this.isEmpty()) { throw "Queue empty"; } return this.data.first(); }
     func isEmpty() -> bool { return this.data.isEmpty(); }
-    func size() -> int    { return this.data.len(); }
-    func clear()          { this.data.clear(); }
+    func size() -> int   { return this.data.len(); }
+    func clear()         { this.data.clear(); }
     func describe() -> string { return "Queue" + str(this.data); }
 }
 
-// ── Set ───────────────────────────────────────────────────────
 class Set {
     var data;
     func init() { this.data = {}; }
-    func add(var v) { this.data[str(v)] = v; }
+    func add(var v)      { this.data[str(v)] = v; }
     func has(var v) -> bool { return this.data.has(str(v)); }
-    func remove(var v) { this.data.remove(str(v)); }
-    func size() -> int { return this.data.len(); }
+    func remove(var v)   { this.data.remove(str(v)); }
+    func size() -> int   { return this.data.len(); }
     func isEmpty() -> bool { return this.data.isEmpty(); }
-    func clear() { this.data.clear(); }
+    func clear()         { this.data.clear(); }
     func values() -> var { return this.data.values(); }
     func describe() -> string { return "Set" + str(this.data.values()); }
+
     func union(Set other) -> Set {
         auto s = new Set();
         for (auto v in this.values())  { s.add(v); }
@@ -59,16 +45,36 @@ class Set {
     }
     func intersect(Set other) -> Set {
         auto s = new Set();
-        for (auto v in this.values()) {
-            if (other.has(v)) { s.add(v); }
-        }
+        for (auto v in this.values()) { if (other.has(v)) { s.add(v); } }
         return s;
     }
     func difference(Set other) -> Set {
         auto s = new Set();
-        for (auto v in this.values()) {
-            if (!other.has(v)) { s.add(v); }
-        }
+        for (auto v in this.values()) { if (!other.has(v)) { s.add(v); } }
         return s;
     }
+    func isSubset(Set other) -> bool {
+        for (auto v in this.values()) { if (!other.has(v)) { return false; } }
+        return true;
+    }
+}
+
+class Deque {
+    var data;
+    func init() { this.data = array(); }
+    func pushFront(var v) { this.data.unshift(v); }
+    func pushBack(var v)  { this.data.push(v); }
+    func popFront() -> var {
+        if (this.isEmpty()) { throw "Deque underflow"; }
+        return this.data.shift();
+    }
+    func popBack() -> var {
+        if (this.isEmpty()) { throw "Deque underflow"; }
+        return this.data.pop();
+    }
+    func front() -> var  { return this.data.first(); }
+    func back() -> var   { return this.data.last(); }
+    func isEmpty() -> bool { return this.data.isEmpty(); }
+    func size() -> int   { return this.data.len(); }
+    func describe() -> string { return "Deque" + str(this.data); }
 }

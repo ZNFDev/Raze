@@ -1,0 +1,97 @@
+// tests/import_test.rz - Tests stdlib module imports
+import "stdlib/math.rz";
+import "stdlib/collections.rz";
+import "stdlib/string.rz";
+import "stdlib/algo.rz";
+import "stdlib/vec.rz";
+
+func main() {
+    println("=== Import & Stdlib Test ===\n");
+
+    // --- math.rz ---
+    println("--- math.rz ---");
+    println("isPrime(97)    = " + str(isPrime(97)));
+    println("primes(30)     = " + str(primes(30)));
+    println("gcd(48, 18)    = " + str(gcd(48, 18)));
+    println("lcm(4, 6)      = " + str(lcm(4, 6)));
+    println("factorial(8)   = " + str(factorial(8)));
+    println("fibonacci(10)  = " + str(fibonacci(10)));
+    println("deg2rad(180)   = " + str(deg2rad(180.0)));
+    println("smoothstep(.5) = " + str(smoothstep(0.0, 1.0, 0.5)));
+    println("map_range(5)   = " + str(map_range(5.0, 0.0, 10.0, 0.0, 100.0)));
+    println("distance2D     = " + str(distance2D(0.0, 0.0, 3.0, 4.0)));
+
+    // --- string.rz ---
+    println("\n--- string.rz ---");
+    println("strCenter:  '" + strCenter("Raze", 20, "-") + "'");
+    println("strIsAlpha: " + str(strIsAlpha("hello")));
+    println("strIsDigit: " + str(strIsDigit("12345")));
+    println("strZfill:   " + strZfill("42", 8));
+    println("strWords:   " + str(strWords("hello world foo")));
+    println("parseSafe:  " + str(parseIntSafe("notanint", -1)));
+
+    // --- collections.rz ---
+    println("\n--- Stack ---");
+    auto stack = new Stack();
+    stack.push(10); stack.push(20); stack.push(30);
+    println("stack:  " + stack.describe());
+    println("peek:   " + str(stack.peek()));
+    println("pop:    " + str(stack.pop()));
+    println("size:   " + str(stack.size()));
+
+    println("\n--- Queue ---");
+    auto q = new Queue();
+    q.enqueue("a"); q.enqueue("b"); q.enqueue("c");
+    println("queue:     " + q.describe());
+    println("dequeue:   " + str(q.dequeue()));
+    println("front:     " + str(q.front()));
+
+    println("\n--- Set ---");
+    auto s1 = new Set();
+    s1.add(1); s1.add(2); s1.add(3); s1.add(2);
+    println("s1: " + s1.describe());
+    auto s2 = new Set();
+    s2.add(2); s2.add(3); s2.add(4);
+    println("union:     " + s1.union(s2).describe());
+    println("intersect: " + s1.intersect(s2).describe());
+    println("diff:      " + s1.difference(s2).describe());
+
+    println("\n--- Deque ---");
+    auto dq = new Deque();
+    dq.pushBack(1); dq.pushBack(2); dq.pushFront(0);
+    println("deque: " + dq.describe());
+    println("popFront: " + str(dq.popFront()));
+    println("popBack:  " + str(dq.popBack()));
+
+    // --- algo.rz ---
+    println("\n--- algo.rz ---");
+    auto arr = [64, 34, 25, 12, 22, 11, 90];
+    println("quicksort:  " + str(quicksort(arr)));
+    println("mergesort:  " + str(mergesort(arr)));
+    auto sorted = arr.sort();
+    println("binarySearch(25): " + str(binarySearch(sorted, 25)));
+    println("binarySearch(99): " + str(binarySearch(sorted, 99)));
+    println("windows(3): " + str(windows([1,2,3,4,5], 3)));
+    auto parts = partition([1,2,3,4,5,6], func(int n) -> bool { return n % 2 == 0; });
+    println("partition evens: " + str(parts[0]));
+    println("partition odds:  " + str(parts[1]));
+    println("deepFlat: " + str(deepFlat([[1,[2,3]],[4,[5,[6]]]])));
+
+    // --- vec.rz ---
+    println("\n--- vec.rz ---");
+    auto v1 = new Vec2(3.0, 4.0);
+    auto v2 = new Vec2(1.0, 2.0);
+    println("v1:          " + v1.toString());
+    println("length:      " + str(v1.length()));
+    println("add:         " + v1.add(v2).toString());
+    println("dot:         " + str(v1.dot(v2)));
+    println("normalize:   " + v1.normalize().toString());
+    println("lerp(0.5):   " + v1.lerp(v2, 0.5).toString());
+
+    auto u = new Vec3(1.0, 0.0, 0.0);
+    auto v = new Vec3(0.0, 1.0, 0.0);
+    println("Vec3 cross:  " + u.cross(v).toString());
+    println("Vec3 zero:   " + Vec3::zero().toString());
+
+    println("\n=== All import tests passed! ===");
+}
